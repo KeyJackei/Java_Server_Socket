@@ -6,10 +6,27 @@ package model;
 import server.SocketWrapper;
 
 import java.io.IOException;
+import java.time.Instant;
 
 public class User {
+
+
+
+    /*
+    * Добавлен счётчик времени для отслеживания активности пользователя в сети
+    *
+    *
+    * */
     private String name;
     private SocketWrapper socket;
+    private volatile long lastActive; // Unix timestamp последней активности
+
+    public User(String name, SocketWrapper socket) {
+        this.name = name;
+        this.socket = socket;
+        this.lastActive = Instant.now().toEpochMilli();
+    }
+
 
     /**
      * Конструктор класса User.
@@ -17,11 +34,6 @@ public class User {
      * @param name   имя пользователя
      * @param socket сокет для общения с пользователем
      */
-    public User(String name, SocketWrapper socket) {
-        this.name = name;
-        this.socket = socket;
-    }
-
     /**
      * Создает объект User на основе сокета.
      *
@@ -29,6 +41,14 @@ public class User {
      * @return объект User
      * @throws IOException при ошибке ввода/вывода
      */
+
+    public long getLastActive() {
+        return lastActive;
+    }
+
+    public void updateLastActive() {
+        this.lastActive = Instant.now().toEpochMilli();
+    }
     public static User fromSocket(SocketWrapper socket) throws IOException {
         String name = socket.readLine();
         return new User(name, socket);
